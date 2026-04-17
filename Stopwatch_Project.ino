@@ -79,10 +79,8 @@ void loop() {
     } else {
       tft.pushImage(30, 190, 92, 26, guiStartButtons[0]);
     }
+    tft.pushImage(148, 190, 102, 26, guiSetTimeButtons[0]);
 
-    //tft.pushImage(30, 190, 92, 26, guiStartButtons[0]);
-    //tft.drawRect(30, 190, 92, 26, TFT_WHITE);
-    tft.drawRect(148, 190, 102, 26, TFT_WHITE);
     
     
       // Update timer
