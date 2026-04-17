@@ -9,8 +9,8 @@ TFT_eSPI tft = TFT_eSPI();  // Create TFT object
 const int BUTTON_PIN = 32;
 
 int barCounter = 0;
-int countdown = 150;  // countdown in seconds
-float setTime = 150.0;
+int countdown = 50;  // countdown in seconds
+float setTime = countdown;
 
 unsigned long lastUpdate = 0;
 const int INTERVAL = 1000; // 1 second
@@ -52,19 +52,19 @@ void loop() {
     int fullWidth = 200;
     int height = 28;
 
-    tft.startWrite();
-    tft.setAddrWindow(40, 5, fullWidth-(countdown/setTime)*fullWidth, height);
-    for (int y = 0; y < height; y++) {
-      tft.pushPixels(&barFull[y * fullWidth], fullWidth-(countdown/setTime)*fullWidth);
-    }
-    Serial.println((countdown/setTime)*fullWidth);
 
-    tft.endWrite();
-    
-    test += 5;
-    if (test >= 200) {
-      test = 0;
-      tft.pushImage(40,5,200,28, barEmpty);
+
+    if (fullWidth-(countdown/setTime)*fullWidth >= fullWidth) {
+        //FULLLLLLLLLLL
+    } else {
+      tft.startWrite();
+      tft.setAddrWindow(40, 5, fullWidth-(countdown/setTime)*fullWidth, height);
+      for (int y = 0; y < height; y++) {
+        tft.pushPixels(&barFull[y * fullWidth], fullWidth-(countdown/setTime)*fullWidth);
+      }
+      Serial.println((countdown/setTime)*fullWidth);
+
+      tft.endWrite();
     }
 
 //----------------------------------------------------------
