@@ -6,16 +6,23 @@
 
 TFT_eSPI tft = TFT_eSPI();  // Create TFT object
 
+const int BUTTON_PIN = 32;
+
 int barCounter = 0;
 int countdown = 150;  // countdown in seconds
 float setTime = 150.0;
 
 unsigned long lastUpdate = 0;
-const int interval = 1000; // 1 second
+const int INTERVAL = 1000; // 1 second
+
+bool bButtonPressed = false;
 
 int test = 0;
 
 void setup() {
+  //Arduino Pin Setup
+  pinMode(BUTTON_PIN, INPUT);
+
   tft.init();               // Initialize TFT
   tft.setRotation(1);       // Set rotation
   tft.fillScreen(TFT_WHITE);  // Clear screen with black
@@ -65,19 +72,27 @@ void loop() {
     tft.pushImage(0, 80, 280, 100, &idleFrames[i][280 * 80]);
 
     //Start Buttons
+
+    bButtonPressed = digitalRead(BUTTON_PIN);
+    if (bButtonPressed) {
+      tft.pushImage(30, 190, 92, 26, guiStartButtons[2]);
+    } else {
+      tft.pushImage(30, 190, 92, 26, guiStartButtons[0]);
+    }
+
     //tft.pushImage(30, 190, 92, 26, guiStartButtons[0]);
     //tft.drawRect(30, 190, 92, 26, TFT_WHITE);
     tft.drawRect(148, 190, 102, 26, TFT_WHITE);
     
     
       // Update timer
-    if (millis() - lastUpdate >= 1000 && countdown > 0) {
+    if (millis() - lastUpdate >= INTERVAL && countdown > 0) {
       lastUpdate = millis();
       countdown--;
       drawTimer();
     }
 
-    delay(200);
+    delay(100);
   }
 }
 
