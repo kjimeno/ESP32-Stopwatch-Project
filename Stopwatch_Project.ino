@@ -7,6 +7,7 @@
 TFT_eSPI tft = TFT_eSPI();  // Create TFT object
 
 const int BUTTON_PIN = 32;
+const int POTENT_PIN = 35;
 
 int barCounter = 0;
 int countdown = 50;  // countdown in seconds
@@ -17,11 +18,22 @@ const int INTERVAL = 1000; // 1 second
 
 bool bButtonPressed = false;
 
+enum MenuState {
+  MAIN_MENU,
+  SET_TIME_MENU,
+  PLAY_MENU
+};
+
+MenuState currentMenu = MAIN_MENU;
+
+int buttonIdx;
+
 int test = 0;
 
 void setup() {
   //Arduino Pin Setup
   pinMode(BUTTON_PIN, INPUT);
+  pinMode(POTENT_PIN, INPUT);
 
   tft.init();               // Initialize TFT
   tft.setRotation(1);       // Set rotation
@@ -44,28 +56,28 @@ void setup() {
   Serial.begin(9600);
 
   tft.pushImage(30, 190, 92, 26, guiStartButtons[0]);
+
+  buttonIdx = 0;
 }
 
 void loop() {
+  switch (currentMenu) {
+    case MAIN_MENU:
+      // show main menu
+      break;
+
+    case SET_TIME_MENU:
+      // show settings
+      break;
+
+    case PLAY_MENU:
+      // show sensor data
+      break;
+  }
+
 //----------------------------------------------------------
   for (int i = 0; i < idleFC; i++) {
-    int fullWidth = 200;
-    int height = 28;
-
-
-
-    if (fullWidth-(countdown/setTime)*fullWidth >= fullWidth) {
-        //FULLLLLLLLLLL
-    } else {
-      tft.startWrite();
-      tft.setAddrWindow(40, 5, fullWidth-(countdown/setTime)*fullWidth, height);
-      for (int y = 0; y < height; y++) {
-        tft.pushPixels(&barFull[y * fullWidth], fullWidth-(countdown/setTime)*fullWidth);
-      }
-      Serial.println((countdown/setTime)*fullWidth);
-
-      tft.endWrite();
-    }
+    updateTimer();
 
 //----------------------------------------------------------
 
@@ -80,15 +92,6 @@ void loop() {
       tft.pushImage(30, 190, 92, 26, guiStartButtons[0]);
     }
     tft.pushImage(148, 190, 102, 26, guiSetTimeButtons[0]);
-
-    
-    
-      // Update timer
-    if (millis() - lastUpdate >= INTERVAL && countdown > 0) {
-      lastUpdate = millis();
-      countdown--;
-      drawTimer();
-    }
 
     delay(100);
   }
@@ -107,4 +110,30 @@ void drawTimer() {
     tft.drawString(String(minutes) + ":0" + String(seconds), 140, 55);  
   else
     tft.drawString(String(minutes) + ":" + String(seconds), 140, 55);    
+}
+
+void updateTimer() {
+  int fullWidth = 200;
+  int height = 28;
+
+  if (fullWidth-(countdown/setTime)*fullWidth >= fullWidth) {
+      //FULLLLLLLLLLL
+  } else {
+    tft.startWrite();
+    tft.setAddrWindow(40, 5, fullWidth-(countdown/setTime)*fullWidth, height);
+    
+    for (int y = 0; y < height; y++) {
+      tft.pushPixels(&barFull[y * fullWidth], fullWidth-(countdown/setTime)*fullWidth);
+    }
+    
+    Serial.println((countdown/setTime)*fullWidth);
+    tft.endWrite();
+  }
+
+  // Update timer
+  if (millis() - lastUpdate >= INTERVAL && countdown > 0) {
+    lastUpdate = millis();
+    countdown--;
+    drawTimer();
+  }
 }
