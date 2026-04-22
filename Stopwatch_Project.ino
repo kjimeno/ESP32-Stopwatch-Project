@@ -16,8 +16,6 @@ float setTime = countdown;
 unsigned long lastUpdate = 0;
 const int INTERVAL = 1000; // 1 second
 
-bool bButtonPressed = false;
-
 enum MenuState {
   MAIN_MENU,
   SET_TIME_MENU,
@@ -61,38 +59,52 @@ void setup() {
 }
 
 void loop() {
-  switch (currentMenu) {
-    case MAIN_MENU:
-      // show main menu
-      break;
-
-    case SET_TIME_MENU:
-      // show settings
-      break;
-
-    case PLAY_MENU:
-      // show sensor data
-      break;
-  }
-
-//----------------------------------------------------------
   for (int i = 0; i < idleFC; i++) {
-    updateTimer();
+    bool bButtonPressed = digitalRead(BUTTON_PIN);
+    int potentReading = analogRead(POTENT_PIN);
 
-//----------------------------------------------------------
+    switch (currentMenu) {
+      case MAIN_MENU:
+        //If potentiometer reading is turned to the left side,
+        if (potentReading < 2048) {
+          //If button is pressed,
+          if (bButtonPressed) {
+            //Display "press down" for left button
+            tft.pushImage(30, 190, 92, 26, guiStartButtons[2]);
+          } else {
+            //Highlight the left button
+            tft.pushImage(30, 190, 92, 26, guiStartButtons[1]);
+          }
+          //Display right button
+          tft.pushImage(148, 190, 102, 26, guiSetTimeButtons[0]);
+        } else {
+          //If the potentiometer is turned to the right side,
+          //If button is pressed,
+          if (bButtonPressed) {
+            //Display "press down" for right button
+            tft.pushImage(148, 190, 102, 26, guiSetTimeButtons[2]);
+          } else {
+            //Highlight the right button
+            tft.pushImage(148, 190, 102, 26, guiSetTimeButtons[1]);
+          }
+          //Display left button
+          tft.pushImage(30, 190, 92, 26, guiStartButtons[0]);
+        }
+        break;
 
-    tft.pushImage(0, 80, 280, 100, &idleFrames[i][280 * 80]);
+      case SET_TIME_MENU:
+        // show settings
 
-    //Start Buttons
+        break;
 
-    bButtonPressed = digitalRead(BUTTON_PIN);
-    if (bButtonPressed) {
-      tft.pushImage(30, 190, 92, 26, guiStartButtons[2]);
-    } else {
-      tft.pushImage(30, 190, 92, 26, guiStartButtons[0]);
+      case PLAY_MENU:
+        // show sensor data
+        updateTimer();
+
+        break;
     }
-    tft.pushImage(148, 190, 102, 26, guiSetTimeButtons[0]);
-
+    
+    tft.pushImage(0, 80, 280, 100, &idleFrames[i][280 * 80]);
     delay(100);
   }
 }
