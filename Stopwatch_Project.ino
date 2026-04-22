@@ -43,11 +43,9 @@ void setup() {
 
   //background
   tft.pushImage(0,0,280,240, background);
-  //bar frame
-  tft.pushImage(40,5,200,28, barEmpty);
 
   tft.setTextDatum(MC_DATUM);  // middle-center alignment
-  tft.setTextSize(3);
+  tft.setTextSize(5);
       
   // Set text color
   tft.setTextColor(TFT_WHITE);
@@ -65,12 +63,25 @@ void loop() {
 
     switch (currentMenu) {
       case MAIN_MENU:
+        displayTimer();
+
         //If potentiometer reading is turned to the left side,
-        if (potentReading < 2048) {
-          //If button is pressed,
+        if (potentReading > 2048) {
+          //If (PLAY) button is pressed,
           if (bButtonPressed) {
             //Display "press down" for left button
             tft.pushImage(30, 190, 92, 26, guiStartButtons[2]);
+
+            //debounce for press animation
+            delay(200);
+            //Show bar frame, hide main menu buttons, and change to play menu
+            tft.setTextSize(3);
+            tft.pushImage(0,0,280,240, background);
+            tft.pushImage(40,5,200,28, barEmpty);
+            currentMenu = PLAY_MENU;
+            
+            break;
+
           } else {
             //Highlight the left button
             tft.pushImage(30, 190, 92, 26, guiStartButtons[1]);
@@ -79,7 +90,7 @@ void loop() {
           tft.pushImage(148, 190, 102, 26, guiSetTimeButtons[0]);
         } else {
           //If the potentiometer is turned to the right side,
-          //If button is pressed,
+          //If (SET TIME) button is pressed,
           if (bButtonPressed) {
             //Display "press down" for right button
             tft.pushImage(148, 190, 102, 26, guiSetTimeButtons[2]);
@@ -109,7 +120,7 @@ void loop() {
   }
 }
 
-void drawTimer() {
+void displayTimer() {
   //background
   tft.pushImage(0,35,280, 40, &background[280 * 35]);
   
@@ -146,6 +157,6 @@ void updateTimer() {
   if (millis() - lastUpdate >= INTERVAL && countdown > 0) {
     lastUpdate = millis();
     countdown--;
-    drawTimer();
+    displayTimer();
   }
 }
