@@ -138,7 +138,10 @@ void loop() {
           buttonIdx++;
           
           //debounce
-          delay(300);
+          digitalWrite(BUZZER_PIN, HIGH);
+          delay(100);
+          digitalWrite(BUZZER_PIN, LOW);
+          delay(200);
         } 
         
         if (buttonIdx >= 2) {
