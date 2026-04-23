@@ -13,6 +13,7 @@ int barCounter = 0;
 int countdown = 50;  // countdown in seconds
 float setTime = countdown;
 int beepTimer = 0;
+int lastPotentReading = 0;
 
 int setMinutes = countdown / 60;
 int setSeconds = countdown % 60;
@@ -61,6 +62,7 @@ void setup() {
   tft.pushImage(30, 190, 92, 26, guiStartButtons[0]);
 
   buttonIdx = 0;
+  lastPotentReading = analogRead(POTENT_PIN);
 }
 
 void loop() {
@@ -74,6 +76,12 @@ void loop() {
     switch (currentMenu) {
       case MAIN_MENU:
         displayTimer(deltaTime);
+        
+        if ((lastPotentReading > 2048  && potentReading <= 2048) || (lastPotentReading <= 2048 && potentReading > 2048)) {
+          digitalWrite(BUZZER_PIN, HIGH);
+          delay(100);
+          digitalWrite(BUZZER_PIN, LOW);
+        }
 
         //If potentiometer reading is turned to the left side,
         if (potentReading > 2048) {
@@ -106,7 +114,10 @@ void loop() {
             tft.pushImage(148, 190, 102, 26, guiSetTimeButtons[2]);
 
             //debounce for press animation
-            delay(300);
+            digitalWrite(BUZZER_PIN, HIGH);
+            delay(100);
+            digitalWrite(BUZZER_PIN, LOW);
+            delay(200);
             //Hide main menu buttons and change to "set time" menu
             tft.pushImage(0,0,280,240, background);
             currentMenu = SET_TIME_MENU;
@@ -189,6 +200,7 @@ void loop() {
     }
     
     tft.pushImage(0, 80, 280, 100, &idleFrames[i][280 * 80]);
+    lastPotentReading = analogRead(POTENT_PIN);
     delay(100);
   }
 }
