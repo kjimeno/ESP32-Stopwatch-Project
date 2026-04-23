@@ -1,11 +1,10 @@
-#include <TFT_eSPI.h>  // TFT library for ESP32
-#include "idle.h"      // Your .h file with the image
+#include <TFT_eSPI.h>  
+#include "idle.h"      
 #include "background.h"
 #include "bar.h"
 #include "gui/gui.h"
 
-TFT_eSPI tft = TFT_eSPI();  // Create TFT object
-
+TFT_eSPI tft = TFT_eSPI();  
 const int BUTTON_PIN = 32;
 const int POTENT_PIN = 35;
 const int BUZZER_PIN = 33;
@@ -42,18 +41,17 @@ void setup() {
   pinMode(POTENT_PIN, INPUT);
   pinMode(BUZZER_PIN, OUTPUT);
 
-  tft.init();               // Initialize TFT
-  tft.setRotation(1);       // Set rotation
-  tft.fillScreen(TFT_WHITE);  // Clear screen with black
+  tft.init();             
+  tft.setRotation(1);       
+  tft.fillScreen(TFT_WHITE);  
   
   Serial.begin(9600);
-  // Swap bytes to fix the color issue
   tft.setSwapBytes(true);
 
   //background
   tft.pushImage(0,0,280,240, background);
 
-  tft.setTextDatum(MC_DATUM);  // middle-center alignment
+  tft.setTextDatum(MC_DATUM);  
   tft.setTextSize(5);
       
   // Set text color
