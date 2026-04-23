@@ -8,10 +8,13 @@ TFT_eSPI tft = TFT_eSPI();  // Create TFT object
 
 const int BUTTON_PIN = 32;
 const int POTENT_PIN = 35;
+const int BUZZER_PIN = 33;
 
 int barCounter = 0;
 int countdown = 50;  // countdown in seconds
 float setTime = countdown;
+int beepTimer = 0;
+
 int setMinutes = countdown / 60;
 int setSeconds = countdown % 60;
 
@@ -31,13 +34,13 @@ enum MenuState {
 MenuState currentMenu = MAIN_MENU;
 
 int buttonIdx;
-
 int test = 0;
 
 void setup() {
   //Arduino Pin Setup
   pinMode(BUTTON_PIN, INPUT);
   pinMode(POTENT_PIN, INPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
 
   tft.init();               // Initialize TFT
   tft.setRotation(1);       // Set rotation
@@ -64,11 +67,6 @@ void setup() {
 
 void loop() {
   for (int i = 0; i < idleFC; i++) {
-    Serial.print("COUNTDOWN: ");
-    Serial.println(countdown);
-    Serial.print("SET TIME:");
-    Serial.println(setTime);
-
     float deltaTime = (millis() - previousTime);
     previousTime = millis();
 
@@ -127,7 +125,6 @@ void loop() {
         break;
 
       case SET_TIME_MENU: {
-        Serial.println(buttonIdx);
         if (bButtonPressed && buttonIdx < 2) {
           buttonIdx++;
           
@@ -160,7 +157,35 @@ void loop() {
         break;
       }
       case PLAY_MENU:
-        updateTimer();
+        if (countdown > 0) {
+          updateTimer();
+        } else {
+          //BEEP!!!
+          tft.setTextSize(4);
+          tft.pushImage(0,0,280,240, background);
+          tft.pushImage(0, 80, 280, 100, &idleFrames[i][280 * 80]);
+
+          //beep 3 times over a period of 1.5 seconds
+          int totalPeriod = 1500;
+          int nBeeps = 3;
+          int beepPeriod = 3; //the higher the value, the shorter the period
+          if (beepTimer <= totalPeriod) {
+            beepTimer += deltaTime;
+            if (beepTimer % (totalPeriod/nBeeps) <= totalPeriod/(nBeeps*beepPeriod)) {
+              digitalWrite(BUZZER_PIN, HIGH);
+              tft.drawString("GAME OVER!", 140, 55);
+            } else {
+              digitalWrite(BUZZER_PIN, LOW);
+            }
+              
+          } else {
+            beepTimer = 0;
+            tft.setTextSize(5);
+            digitalWrite(BUZZER_PIN, LOW);
+            countdown = setTime;
+            currentMenu = MAIN_MENU;
+          }
+        }
 
         break;
     }
@@ -185,7 +210,7 @@ void displayTimer(float deltaTime) {
       
     case SET_TIME_MENU: {
       setTimeCounter += deltaTime;
-      int switchVisibilityCount = setTimeCounter * 0.001;
+      int switchVisibilityCount = setTimeCounter * 0.002;
 
       //switch between visible and not visible on either minutes text or seconds
       bTimerVisibility = switchVisibilityCount % 2 ? false : true;
