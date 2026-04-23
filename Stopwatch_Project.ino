@@ -64,6 +64,11 @@ void setup() {
 
 void loop() {
   for (int i = 0; i < idleFC; i++) {
+    Serial.print("COUNTDOWN: ");
+    Serial.println(countdown);
+    Serial.print("SET TIME:");
+    Serial.println(setTime);
+
     float deltaTime = (millis() - previousTime);
     previousTime = millis();
 
@@ -105,7 +110,7 @@ void loop() {
             tft.pushImage(148, 190, 102, 26, guiSetTimeButtons[2]);
 
             //debounce for press animation
-            delay(1000);
+            delay(300);
             //Hide main menu buttons and change to "set time" menu
             tft.pushImage(0,0,280,240, background);
             currentMenu = SET_TIME_MENU;
@@ -127,7 +132,7 @@ void loop() {
           buttonIdx++;
           
           //debounce
-          delay(1000);
+          delay(300);
         } 
         
         if (buttonIdx >= 2) {
@@ -138,7 +143,7 @@ void loop() {
           tft.setTextColor(TFT_WHITE);
 
           //debounce
-          delay(1000);
+          delay(300);
           currentMenu = MAIN_MENU;
 
           return;
@@ -175,6 +180,7 @@ void displayTimer(float deltaTime) {
   switch (currentMenu) {
     case MAIN_MENU:
       tft.pushImage(0,35,280, 40, &background[280 * 35]);
+      
       break;
       
     case SET_TIME_MENU: {
@@ -219,34 +225,20 @@ void displayTimer(float deltaTime) {
           tft.setTextColor(TFT_WHITE);
           tft.drawString(minText + ":  ", 140, 55);
         }
-
-        /*
-        if (buttonIdx == 0 && seconds < 10 && minutes < 10) {
-          tft.setTextColor(TFT_DARKGREY);
-          tft.drawString("0" + String(minutes) + ":0" + String(seconds), 140, 55);
-          tft.setTextColor(TFT_WHITE);
-          tft.drawString("  " + ":0" + String(seconds), 140, 55);
-        } else if (buttonIdx == 0 && seconds < 10) {
-          tft.setTextColor(TFT_DARKGREY);
-          tft.drawString(String(minutes) + ":0" + String(seconds), 140, 55);
-          tft.setTextColor(TFT_WHITE);
-          tft.drawString("  " + ":0" + String(seconds), 140, 55);
-        }
-        */
       }
       return;
     }
     case PLAY_MENU:
       tft.pushImage(0,35,280, 40, &background[280 * 35]);
+
       break;
   }
-  
 
-  // Draw centered at bottom
-  if (seconds < 10)
-    tft.drawString(String(minutes) + ":0" + String(seconds), 140, 55);  
-  else
-    tft.drawString(String(minutes) + ":" + String(seconds), 140, 55);   
+  if ((countdown % 60) < 10 && currentMenu != SET_TIME_MENU) {
+    tft.drawString(String(countdown/60) + ":0" + String(countdown%60), 140, 55);
+  } 
+  else if (currentMenu != SET_TIME_MENU)
+    tft.drawString(String(countdown/60) + ":" + String(countdown%60), 140, 55);
 
   bLastTimerVisibility = bTimerVisibility;
 }
@@ -255,24 +247,18 @@ void updateTimer() {
   int fullWidth = 200;
   int height = 28;
 
-  if (fullWidth-(countdown/setTime)*fullWidth >= fullWidth) {
-      //FULLLLLLLLLLL
-  } else {
-    tft.startWrite();
-    tft.setAddrWindow(40, 5, fullWidth-(countdown/setTime)*fullWidth, height);
-    
-    for (int y = 0; y < height; y++) {
-      tft.pushPixels(&barFull[y * fullWidth], fullWidth-(countdown/setTime)*fullWidth);
-    }
-    
-    Serial.println((countdown/setTime)*fullWidth);
-    tft.endWrite();
-  }
-
   // Update timer
   if (millis() - lastTimerUpdate >= INTERVAL && countdown > 0) {
     lastTimerUpdate = millis();
     countdown--;
+
+    tft.startWrite();
+    tft.setAddrWindow(40, 5, fullWidth-(countdown/setTime)*fullWidth, height);
+    for (int y = 0; y < height; y++) {
+      tft.pushPixels(&barFull[y * fullWidth], fullWidth-(countdown/setTime)*fullWidth);
+    }
+    tft.endWrite();
+
     displayTimer(0);
   }
 }
